@@ -1,6 +1,8 @@
 import PyPDF2
 import os
+import sys
 import re
+import time
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -17,18 +19,20 @@ except Exception as e:
 
 root.withdraw()
 
+counter  = 0
+
 
 def user_cancelled():
     result = messagebox.askyesno('Cancel?', 'Do you want to cancel?')
     if result is True:
         print('Exiting...')
-        exit()
+        sys.exit()
     return True
 
 
 def no_pdf_files():
     messagebox.showwarning('No PDF', 'No PDF files found in this directory.')
-    exit()
+    sys.exit()
 
 
 i = 1  # Increment i when there are duplicate names; used later
@@ -47,17 +51,24 @@ while not open_dir != '':
 open_dir = open_dir + '/'
 
 for pdf in os.listdir(open_dir):
+    if pdf == 'Thumbs.db':
+        continue
     full_path = open_dir + pdf
     with open(full_path, 'rb') as pdf_fileobj:
         try:
             pdf_reader = PyPDF2.PdfFileReader(pdf_fileobj)
+            counter += 1
         except Exception as e:
-            no_pdf_files()
+            if counter == 0:
+                no_pdf_files()
+            else:
+                sys.exit()
 
         pdf_reader.numPages
 
         page_obj = pdf_reader.getPage(0)
         extracted = page_obj.extractText()
+        print(extracted)
 
         # Extract index numbers from pdfs
         # to search and use for new_filename
@@ -75,16 +86,27 @@ for pdf in os.listdir(open_dir):
         pmt_name = pmt_name.search(extracted)
         bank = re.compile('Bank:')
         bank = bank.search(extracted)
+        ref = re.compile('Reference: ')
+        ref = ref.search(extracted)
+        amount = re.compile('Amount: ')
+        amount = amount.search(extracted)
 
-        new_filename = open_dir + extracted[pmt_name.start() + 6:bank.start()]
+        cleaned_up_name = extracted[pmt_name.start() + 6:bank.start()]
+        cleaned_up_name = cleaned_up_name.replace('/', ' ')
+
+        new_filename = open_dir + cleaned_up_name
         new_filename = new_filename + extracted[date_actioned.start()
                                                 + 14:time_actioned.start()]
         new_filename = new_filename + trace
+        # new_filename = new_filename + ref
+        # new_filename = new_filename + 'R' + amount
 
         pdf_fileobj.close()
 
         try:
             os.rename(full_path, new_filename + '.pdf')
+        except FileNotFoundError:
+            pass
         except FileExistsError:
             try:
                 os.rename(full_path, new_filename + ' (' + str(i) + ')' + '.pdf')
@@ -93,3 +115,4 @@ for pdf in os.listdir(open_dir):
                 continue
 
 print('Done')
+time.sleep(3)
