@@ -1,2 +1,6 @@
 # FNB P.O.P. Renamer
-Renames FNB proofs of payment from default to name of payment plus date/time
+Renames FNB proof of payment from default to include:
+- recipient name
+- date
+- reference number
+- amount
