@@ -142,7 +142,7 @@ def OpenFile():
 
             new_filename = open_dir + cleaned_up_name
             new_filename = new_filename + date_corrected + ' '
-            new_filename = new_filename + ref + ' '
+            new_filename = new_filename + '(' + ref +')' + ' '
             new_filename = new_filename + 'R' + amount
 
             pdf_fileobj.close()
@@ -166,19 +166,19 @@ def OpenFile():
 
 Title = root.title("Rename FNB POPs")
 label_text = 'PDF files inside the selected folder will be renamed as follows:'
-add_text = '''Name
-Date
-Reference number
-Amount'''
+add_text = '''>> Recipient Name
+>> Date
+>> Reference number
+>> Amount'''
 
 label = ttk.Label(root, text=label_text, foreground="black",
                   font=('Helvetica', 11))
 label1 = ttk.Label(root, text=add_text,
                    font=('Helvetica', 10))
-label.pack(padx=30, pady=20)
+label.pack(padx=30, pady=10)
 label1.pack(padx=30, pady=10, fill=tk.BOTH)
 select_button = ttk.Button(root, text='Select folder', command=OpenFile)
-select_button.pack(padx=10, pady=10)
+select_button.pack(pady=15)
 
 # status = StatusBar(root)
 # status.pack(side=tk.BOTTOM, fill=tk.X)
