@@ -48,7 +48,7 @@ initial_dir = os.getcwd
 
 def about():
     title = 'About FNB POP Renamer'
-    text = '''    FNB POP Renamer V1.0.1
+    text = '''    FNB POP Renamer V1.0.2
     Free to use
 
     Created by Hennie Botha'''
@@ -65,7 +65,6 @@ def user_cancelled():
 
 def no_pdf_files():
     messagebox.showwarning('No PDF', 'No PDF files found in this directory.')
-#     sys.exit()
 
 
 # This is where we lauch the file manager bar.
@@ -130,6 +129,7 @@ def OpenFile():
             channel = re.compile('Channel: ')
             channel = channel.search(extracted)
             ref = extracted[ref.start() + 11:channel.start()]
+            ref = ref.replace('/', '.')
 
             amount = re.compile('Amount: ')
             amount = amount.search(extracted)
