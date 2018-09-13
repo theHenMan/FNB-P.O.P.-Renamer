@@ -15,40 +15,18 @@ from tkinter import messagebox
 
 root = tk.Tk()
 
-# ft = ttk.Frame()
-# ft.pack(expand=True, fill=tk.BOTH, side=tk.BOTTOM)
-
-# pb1 = ttk.Progressbar(ft, orient='horizontal', mode='indeterminate')
-# pb1.pack(expand=True, fill=tk.BOTH, side=tk.BOTTOM, padx=65, pady=5)
-
 icon_dir = os.path.join(os.getcwd())
 try:
     root.iconbitmap(icon_dir + '\\icon\\pdf_icon.ico')
-except Exception as e:
+except:
     pass
 
 initial_dir = os.getcwd
 
 
-# class StatusBar(tk.Frame):
-
-#     def __init__(self, master):
-#         tk.Frame.__init__(self, master)
-#         self.label = ttk.Label(self, relief=tk.SUNKEN, anchor=tk.W)
-#         self.label.pack(fill=tk.X)
-
-#     def set(self, format, *args):
-#         self.label.config(text=format % args)
-#         self.label.update_idletasks()
-
-#     def clear(self):
-#         self.label.config(text="")
-#         self.label.update_idletasks()
-
-
 def about():
     title = 'About FNB POP Renamer'
-    text = '''    FNB POP Renamer V1.0.2
+    text = '''    FNB POP Renamer V1.0.3
     Free to use
 
     Created by Hennie Botha'''
@@ -69,7 +47,7 @@ def no_pdf_files():
 
 # This is where we lauch the file manager bar.
 def OpenFile():
-    # global pb1
+
     counter = 0
     i = 1  # Increment i when there are duplicate names; used later
 
@@ -85,7 +63,6 @@ def OpenFile():
     pdf_reader = ''
 
     for pdf in os.listdir(open_dir):
-        # pb1.start(50)
         if pdf == 'Thumbs.db':
             continue
         full_path = open_dir + pdf
@@ -93,7 +70,7 @@ def OpenFile():
             try:
                 pdf_reader = PyPDF2.PdfFileReader(pdf_fileobj)
                 counter += 1
-            except Exception:
+            except:
                 if counter == 0:
                     no_pdf_files()
                 else:
@@ -113,8 +90,8 @@ def OpenFile():
             time_actioned = re.compile('Time Actioned:')
             time_actioned = time_actioned.search(extracted)
             date_corrected = extracted[date_actioned.start()
-                                       + 14:time_actioned.start()].replace(':',
-                                                                           '-')
+                                    + 14:time_actioned.start()].replace(':',
+                                                                        '-')
 
             trace_id = re.compile('Trace ID:')
             trace_id = trace_id.search(extracted)
@@ -126,10 +103,19 @@ def OpenFile():
 
             ref = re.compile('Reference: ')
             ref = ref.search(extracted)
-            channel = re.compile('Channel: ')
-            channel = channel.search(extracted)
-            ref = extracted[ref.start() + 11:channel.start()]
-            ref = ref.replace('/', '.')
+            
+            # For some reason, FNB can give you diffent POPs
+            # I have found 2 different types; this handles that
+            try:
+                channel = re.compile('Channel: ')
+                channel = channel.search(extracted)
+                ref = extracted[ref.start() + 11:channel.start()]
+                ref = ref.replace('/', '.')
+            except:
+                end = re.compile(' END OF')
+                end = end.search(extracted)
+                ref = extracted[ref.start() + 11:end.start()]
+                ref = ref.replace('/', '.')
 
             amount = re.compile('Amount: ')
             amount = amount.search(extracted)
@@ -158,10 +144,8 @@ def OpenFile():
                     i += 1
                 except FileExistsError:
                     continue
+
     messagebox.showinfo('!', 'Done')
-    # WHY IS THIS NOT WORKING???
-    # pb1.start()
-    # pb1.stop
 
 
 Title = root.title("Rename FNB POPs")
@@ -179,9 +163,6 @@ label.pack(padx=30, pady=10)
 label1.pack(padx=30, pady=10, fill=tk.BOTH)
 select_button = ttk.Button(root, text='Select folder', command=OpenFile)
 select_button.pack(pady=15)
-
-# status = StatusBar(root)
-# status.pack(side=tk.BOTTOM, fill=tk.X)
 
 # Menu Bar
 menu = tk.Menu(root)
